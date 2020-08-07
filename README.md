@@ -1,26 +1,56 @@
-# Lyrics-visualize
+# Name (Lyrics-visualize)
 
 任意のアーティストの任意の曲を入力すると、
-スクレイピングしてその歌詞を取得し、
+その歌詞を取得し、
 歌詞を形態素分析して、
-単語をその出現頻度に応じた大きさで並べて、
-画像を出力する
+単語をその出現頻度に応じた大きさで並べた画像を出力する
 プログラム
 
-スクレイピングにはrequestsとBeatifulSoup4、
-形態素分析にはMecab、
-ワードクラウド描画にはWordCloud
-を使用する。
+# DEMO
 
+![demo_image](/Lyrics-visualize/image/img.png)
 
-フローチャート
-歌手ページの取得（歌手ページURL→歌手HTML）
-曲一覧ページのURL取得（歌手HTML→曲URL）
-if(曲URLがない)終了（曲URL）
-歌詞の取得（曲URL→歌詞文字列）
+> 曲名:丸の内サディスティック　作詞:椎名林檎
 
-MeCabを準備（）
-曲名を除外リストに追加（曲名、除外リスト）
-品詞選択（ノード、除外リスト→出力単語）
+# Requirement
 
-wordcloud生成（出力単語、歌手名、曲名）
+- Python 3.7
+
+- requests 2.22.0
+- beautifulsoup4 4.8.2
+- mecab-python3 0.996.5
+- wordcloud 1.6.0
+
+# Usage
+
+## Build
+
+```bash
+git clone https://github.com/Ran350/Lyrics-visualize
+cd /home/..../Lyrics-visualize/main.py
+```
+
+## Run
+
+実行ファイル main.py 中の、ARTISTS_NAME に歌手名を、SONG_NAME に曲名を入力する。
+曲名を除外して出力したい場合には、is_remove_title を'yes'にする。
+
+```
+ARTISTS_NAME = '椎名林檎'
+SONG_NAME = '丸の内サディスティック'  # 全曲解析したいときは*を入力
+is_remove_title = 'yes'  # 曲名は除外して出力するか yes/no
+```
+
+> main.py
+
+```bash
+python main.py
+```
+
+# References
+
+<https://www.uta-net.com/>
+
+# Author
+
+- Ran350
