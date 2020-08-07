@@ -8,7 +8,7 @@
 
 # DEMO
 
-![demo_image](/Lyrics-visualize/image/img.png)
+![demo_image](/image/img.png)
 
 > 曲名:丸の内サディスティック　作詞:椎名林檎
 
@@ -30,7 +30,7 @@ git clone https://github.com/Ran350/Lyrics-visualize
 cd /home/..../Lyrics-visualize/main.py
 ```
 
-## Run
+## Input
 
 実行ファイル main.py 中の、ARTISTS_NAME に歌手名を、SONG_NAME に曲名を入力する。
 曲名を除外して出力したい場合には、is_remove_title を'yes'にする。
@@ -42,6 +42,8 @@ is_remove_title = 'yes'  # 曲名は除外して出力するか yes/no
 ```
 
 > main.py
+
+## Run
 
 ```bash
 python main.py
