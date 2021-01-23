@@ -1,64 +1,67 @@
 import MeCab
 
 
-def set_nlp():
-    ## -----*----- MeCabを準備 -----*----- ##
-    # mecab-ipadic-NEologdのパスを指定 (Web上の新語をデフォルトの辞書に追加したもの)
-    mecab = MeCab.Tagger(
-        '-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd')
-    # mecab = MeCab.Tagger('-Ochasen')   #デフォルトの辞書
+def get_words(lyrics: str, title: str, is_rm_title: bool) -> list:
+    ## -----*----- 歌詞から単語を取得(メイン) -----*----- ##
+    mecab = set_nlp()
 
-    mecab.parse('')  # 文字列がGCされるのを防ぐ
+    stop_words = get_stop_words()  # 除外単語を取得
+
+    if is_rm_title:
+        add_title_to_stop_words(title, stop_words, mecab)
+
+    # 形態素解析
+    return separate_lyrics_into_words(lyrics, mecab, stop_words)
+
+
+def set_nlp():
+    ## -----*----- MeCab解析器の準備 -----*----- ##
+    # 解析器の設定
+    dictionary = '-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd'
+    # dictionary = '-Ochasen'  # なければこれを指定
+    mecab = MeCab.Tagger(dictionary)
+
+    mecab.parse('')  # これでUnicodeDecodeErrorを避けられるらしい
 
     return mecab
 
 
-def remove_word(mecab, SONG_NAME, rm_wd_list):
+def get_stop_words() -> list:
+    ## -----*----- 除外単語を取得 -----*----- ##
+    with open('./stop_words.csv') as f:
+        return f.read()
+
+
+def add_title_to_stop_words(title: str, stop_words: list, mecab: MeCab.Tagger):
     ## -----*----- 曲名を除外リストに追加 -----*----- ##
-    title_node = mecab.parseToNode(SONG_NAME)  # 分けてノードごとにする
+    node = mecab.parseToNode(title)  # 曲名を分かち書きしてノードに
 
-    while title_node:
-        term = title_node.surface  # 単語
-        word_type = title_node.feature.split(",")
-        rm_wd_list.append(term)
-        title_node = title_node.next
-
-    return word_type
-
-
-def get_word_list(kashis, SONG_NAME, rm_wd_list, is_remove_title):
-    ## -----*----- 形態素分析して単語選択(メイン) -----*----- ##
-    '''
-    lyrics : 歌詞文字列
-    SONG_NAME : 曲名
-    stoplist : 除外単語リスト
-    is_remove_title
-    '''
-    word_list = []  # 抽出後の文字列を入れる
-
-    mecab = set_nlp()
-
-    # 曲名を除外リストに追加
-    if is_remove_title == 'yes':
-        word_type = remove_word(mecab, SONG_NAME, rm_wd_list)
-
-    # 品詞に分解して、特定の品詞を抽出
-    node = mecab.parseToNode(kashis)  # 分けてノードごとにする
     while node:
-        term = node.surface  # 単語
-        word_type = node.feature.split(",")
-        # print(word_type)
-        # 形容詞,副詞,感動詞,接続詞,名詞(非自立以外),動詞(サ変以外)を抽出
-        if word_type[0] in ["名詞", "形容詞", "副詞", "動詞", "感動詞", "接続詞"]:  # 品詞を選択
-            if word_type[4] not in ["サ変・スル"]:  # 動詞のサ変を除外
-                if word_type[1] not in ["接尾"]:  # 接尾辞を除外
-                    if word_type[2] not in ["助動詞語幹"]:  # 助動詞を除外
-                        if word_type[1] not in ["非自立"]:  # 非自立名詞を除外
-                            if term not in rm_wd_list:  # 意味のない単語を除外
-                                # if not term.isdigit():  # 数字を除外
-                                word_list.append(term.upper())
+        word = node.surface  # 単語
+        stop_words.append(word)
         node = node.next
 
-    print(word_list)
+
+def separate_lyrics_into_words(lyrics: str,  mecab: MeCab.Tagger, stop_words: list) -> list:
+    ## -----*----- 歌詞を分かち書き -----*----- ##
+    node = mecab.parseToNode(lyrics)  # 分かち書きしてノードに
+
+    word_list = []
+
+    # 品詞に分解して、特定の品詞を抽出
+    while node:
+        term = node.surface  # 単語
+
+        word_type = node.feature.split(',')
+        # word_type: [品詞,品詞細分類1,品詞細分類2,品詞細分類3,活用形,活用型,原形,読み,発音]
+
+        if (word_type[0] in ['名詞', '形容詞', '副詞', '動詞', '感動詞', '接続詞'] and  # 品詞を選択
+            word_type[1] not in ['接尾', '非自立'] and  # <-を除外
+            word_type[2] not in ['助動詞語幹'] and  # <-を除外
+            word_type[4] not in ['サ変・スル'] and  # サ変動詞を除外
+                term not in stop_words):
+            word_list.append(term)
+
+        node = node.next
 
     return word_list
