@@ -1,4 +1,4 @@
-import scraping
+import scp
 import nlp
 import wc
 
@@ -6,10 +6,10 @@ import wc
 def main():
     artist = '椎名林檎'
     song = '丸の内サディスティック'  # 全曲解析 -> '*'を入力
-    is_remove_title = False  # 曲名を除外して出力 -> true
+    is_remove_title = False  # 曲名を除外して出力 -> True
 
     # 歌詞の取得
-    lyrics = scraping.get_lyrics(artist_name=artist, song_name=song)
+    lyrics = scp.get_lyrics(artist_name=artist, song_name=song)
     print(lyrics)
 
     # 形態素分析して単語選択
