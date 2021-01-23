@@ -1,4 +1,6 @@
+from operator import imod
 import MeCab
+import csv
 
 
 def get_words(lyrics: str, title: str, is_rm_title: bool) -> list:
@@ -6,6 +8,7 @@ def get_words(lyrics: str, title: str, is_rm_title: bool) -> list:
     mecab = set_nlp()
 
     stop_words = get_stop_words()  # 除外単語を取得
+    print(stop_words, type(stop_words))
 
     if is_rm_title:
         add_title_to_stop_words(title, stop_words, mecab)
@@ -29,7 +32,8 @@ def set_nlp():
 def get_stop_words() -> list:
     ## -----*----- 除外単語を取得 -----*----- ##
     with open('./stop_words.csv') as f:
-        return f.read()
+        for row in csv.reader(f):
+            return row
 
 
 def add_title_to_stop_words(title: str, stop_words: list, mecab: MeCab.Tagger):
