@@ -1,4 +1,3 @@
-from operator import imod
 import MeCab
 import csv
 
