@@ -1,99 +1,80 @@
 import requests
-import bs4
+from bs4 import BeautifulSoup
 import re
 from sys import exit
 from time import sleep
 
 
-def load(url):
+def get_lyrics(artist_name: str, song_name: str) -> str:
+    ## -----*----- 歌詞を取得（メイン） -----*----- ##
+    dir = extract_song_dir(artist=artist_name, song=song_name)
+
+    return extract_all_lyrics(dir)
+
+
+def extract_song_dir(artist, song) -> list:
+    ## -----*----- 曲のディレクトリ部を取得 -----*----- ##
+    # 歌手名検索用のURL
+    url = 'https://www.uta-net.com/search/?Aselect=1&Bselect=4&sort=4&Keyword='+artist
+
+    html = download_html(url)
+    soup = BeautifulSoup(html, 'html.parser')
+
+    # 表の曲名列のタグ
+    song_selector = '#ichiran > div > table > tbody > tr > td.side.td1 > a'
+    tags = soup.select(song_selector)
+
+    if song == '*':
+        hrefs = [t.get('href') for t in tags]
+        return [h for h in hrefs if '/song/'in h]  # '/song/'を含むhrefのみ
+        # 例: ['/song/12950/',/song/12951/,...]
+
+    for tag in tags:
+        if tag.text == song:
+            return [tag.get('href')]  # 例: ['/song/12950/']
+
+    print(f'{song} by {artist} was not found')
+    exit()
+
+
+def extract_all_lyrics(directories: list) -> str:
+    ## -----*----- すべての歌詞を結合した文字列を取得 -----*----- ##
+    lyrics = ''
+    for dir in directories:
+        lyrics += extract_lyrics(dir)
+
+    return lyrics
+
+
+def extract_lyrics(directory: str) -> str:
+    ## -----*----- 歌詞文字列を取得 -----*----- ##
+    domain = 'https://www.uta-net.com'
+    url = domain + directory
+
+    html = download_html(url)
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    selector = '#kashi_area'
+    content = soup.select_one(selector).text
+
+    return normalize_lyrics(content)
+
+
+def normalize_lyrics(cont: str) -> str:
+    ## -----*----- 歌詞文字列の正規化 -----*----- ##
+    cont = re.sub(r'注意：.+', '', cont)  # 注釈を除去
+    cont = re.sub(r'^亜-熙ぁ-んァ-ヶa-zA-Z ', '', cont)  # 日本語,アルファベット,空白のみ抽出
+
+    return cont
+
+
+def download_html(url: str) -> bytes:
     ## -----*----- 指定URLのHTML文字列を取得 -----*----- ##
     try:
+        sleep(3)  # 優しさ
         res = requests.get(url)
         res.raise_for_status()
+        return res.content
     except:
         print('this page is not found')
-    return res.text
-
-
-def pickup_tag(html, find_tag):
-    ## -----*----- すべての指定タグを取得 -----*----- ##
-    soup = bs4.BeautifulSoup(str(html), 'html.parser')
-    paragraphs = soup.find_all(find_tag)
-
-    return paragraphs
-
-
-def remove_tags(html):
-    ## -----*----- 日本語以外の文字列を除去 -----*----- ##
-    soup = bs4.BeautifulSoup(str(html), 'html.parser')
-    # htmlタグの除去
-    kashi_row = soup.getText()
-    kashi_row = kashi_row.replace('\n', '')
-    kashi_row = kashi_row.replace('　', '')
-
-    # 英数字の排除
-    kashi_row = re.sub(r'[a-zA-Z0-9]', '', kashi_row)
-    # 記号の排除
-    kashi_row = re.sub(r'[ ＜＞♪`‘’“”・…_！？!-/:-@[-`{-~]', '', kashi_row)
-    # 注意書きの排除
-    kashi = re.sub(r'注意：.+', '', kashi_row)
-
-    return kashi
-
-
-def get_lyrics(ARTISTS_NAME, SONG_NAME, url, base_url):
-    ## -----*----- 歌詞を取得（メイン） -----*----- ##
-    '''
-    ARTISTS_NAME : 歌手名
-    SONG_NAME : 曲名
-    url : アーティストページのURL
-    base_url : uta-net.comのURL
-    '''
-
-    html = load(url)    # ページの取得
-
-    musics_url = []  # 曲ごとのurl
-    kashis = ''  # 歌詞
-
-    # 歌手ページURLの取得
-    i = 0
-    # td要素の取り出し
-    for td in pickup_tag(html, 'td'):
-        # a要素の取り出し
-        for a in pickup_tag(td, 'a'):
-            # 全曲解析
-            if SONG_NAME == '*':
-                if 'song' in a.get('href'):
-                    musics_url.append(base_url + a.get('href'))    # urlを配列に追加
-            # １曲だけを解析
-            if SONG_NAME == a.text:
-                if 'song' in a.get('href'):  # href属性にsongを含むか
-                    musics_url.append(base_url + a.get('href'))    # urlを配列に追加
-                    i += 1
-                    break
-        if i == 1:
-            break
-
-    # 曲が見つからなかった場合、プログラムを終了
-    if musics_url == []:
-        print(SONG_NAME + " by " + ARTISTS_NAME + " is not found")
-        exit()
-
-    print(musics_url)  # for debug
-
-    # 歌詞の取得
-    for i, page in enumerate(musics_url):
-        print('{}曲目:{}'.format(i + 1, page))
-        html = load(page)
-
-        for div in pickup_tag(html, 'div'):
-            div = str(div)  # id検索がうまく行えなかった為、一度strにキャスト
-
-            if r'itemprop="text"' in div:   # 歌詞が格納されているdiv要素か
-                kashi = remove_tags(div)  # 不要なデー(タグなど)タを取り除く
-                print(kashi, end='\n\n')  # for debug
-                kashis += kashi + '\n'  # 歌詞を１つにまとめる
-                sleep(1)
-                break
-
-    return kashis
