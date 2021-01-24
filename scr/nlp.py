@@ -7,10 +7,9 @@ def get_words(lyrics: str, title: str, is_rm_title: bool) -> list:
     mecab = set_nlp()
 
     stop_words = get_stop_words()  # 除外単語を取得
-    print(stop_words, type(stop_words))
 
     if is_rm_title:
-        add_title_to_stop_words(title, stop_words, mecab)
+        add_title_to_stopwords(title, stop_words, mecab)
 
     # 形態素解析
     return separate_lyrics_into_words(lyrics, mecab, stop_words)
@@ -35,7 +34,7 @@ def get_stop_words() -> list:
             return row
 
 
-def add_title_to_stop_words(title: str, stop_words: list, mecab: MeCab.Tagger):
+def add_title_to_stopwords(title: str, stop_words: list, mecab: MeCab.Tagger):
     ## -----*----- 曲名を除外リストに追加 -----*----- ##
     node = mecab.parseToNode(title)  # 曲名を分かち書きしてノードに
 
@@ -51,7 +50,7 @@ def separate_lyrics_into_words(lyrics: str,  mecab: MeCab.Tagger, stop_words: li
 
     word_list = []
 
-    # 品詞に分解して、特定の品詞を抽出
+    # 条件に合うかを一単語ずつ調べる
     while node:
         term = node.surface  # 単語
 
