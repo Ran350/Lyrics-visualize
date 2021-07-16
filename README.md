@@ -1,22 +1,15 @@
-# Name (Lyrics-visualize)
-
-任意のアーティスト名と曲名を入力すると，
-歌詞をスクレイピング -> 形態素分析 -> word cloud 画像を生成するプログラム
+# Lyrics-visualize
+歌詞を可視化したワードクラウド画像を生成するプログラム
 
 # DEMO
 
 ![demo_image](scr/image/丸の内サディスティック.png)
 
-> 曲名:丸の内サディスティック　作詞:椎名林檎
+> 曲名:丸の内サディスティック  作詞:椎名林檎
 
 # Requirement
 
-- Python 3.7
-
-- requests 2.22.0
-- beautifulsoup4 4.8.2
-- mecab-python3 0.996.5
-- wordcloud 1.6.0
+[requirements.txt](./requirements.txt) を参照してください．
 
 # Usage
 
@@ -25,6 +18,7 @@
 ```bash
 git clone <this repo>
 cd <this repo>
+pip install -r requirements.txt
 ```
 
 ## Input
@@ -43,6 +37,7 @@ is_remove_title = False  # 曲名を除外して出力 -> True
 ## Run
 
 ```bash
+cd src
 python main.py
 ```
 
