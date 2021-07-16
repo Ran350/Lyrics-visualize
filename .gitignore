@@ -1,7 +1,7 @@
 src/__pycache__
 
 src/image/
-# !/image/丸の内サディスティック.png
+# !src/image/丸の内サディスティック.png
 
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
