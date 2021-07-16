@@ -18,7 +18,8 @@
 ```sh
 git clone <this repo>
 cd <this repo>
-pip install -r requirements.txt
+pipenv install
+
 ```
 
 ## Input
@@ -48,8 +49,16 @@ FONT_PATH: str = '/usr/share/fonts/truetype/takao-mincho/TakaoMincho.ttf'
 
 ## Run
 
+pipenvで作られた仮想環境へ入って実行する．
 ```sh
-python main.py
+pipenv shell
+pipenv run main
+```
+
+仮想環境から抜けるときは次を実行する．
+```sh
+deactivate
+exit
 ```
 
 # References
@@ -58,4 +67,4 @@ python main.py
 
 # Author
 
-- Ran350
+[Ran350](https://github.com/Ran350)
