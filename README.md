@@ -3,7 +3,7 @@
 
 # DEMO
 
-![demo_image](scr/image/丸の内サディスティック.png)
+![demo_image](src/image/丸の内サディスティック.png)
 
 > 曲名:丸の内サディスティック  作詞:椎名林檎
 
