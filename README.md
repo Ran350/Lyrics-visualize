@@ -15,7 +15,7 @@
 
 ## Build
 
-```bash
+```sh
 git clone <this repo>
 cd <this repo>
 pip install -r requirements.txt
@@ -26,7 +26,7 @@ pip install -r requirements.txt
 [core/config.py](core/config.py) で以下を設定する．
 
 歌手名と曲名を設定する．
-```
+```py
 ARTIST: str = '椎名林檎'
 SONG: str = '丸の内サディスティック'  # 全曲解析: '*'
 IS_REMOVE_TITLE: bool = False
@@ -34,19 +34,21 @@ IS_REMOVE_TITLE: bool = False
 
 形態素解析に用いる辞書のパスを指定する．
 辞書をインストールしていない場合は，コメントアウトを外して`-Ochasen`を指定する．
-```
+
+```py
 DICTIONARY_PATH: str = '/usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd'
 # DICTIONARY_PATH: str = '-Ochasen'
 ```
 
 ワードクラウド画像で用いるフォントのパスを指定する．
-```
+
+```py
 FONT_PATH: str = '/usr/share/fonts/truetype/takao-mincho/TakaoMincho.ttf'
 ```
 
 ## Run
 
-```bash
+```sh
 python main.py
 ```
 
