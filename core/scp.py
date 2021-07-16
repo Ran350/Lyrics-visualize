@@ -1,21 +1,23 @@
+from core import config
+
 import requests
 from bs4 import BeautifulSoup
-import re
+
 from sys import exit
 from time import sleep
 
 
-def get_lyrics(artist_name: str, song_name: str) -> str:
+def get_lyrics() -> str:
     ## -----*----- 歌詞を取得（メイン） -----*----- ##
-    dir = extract_song_dir(artist=artist_name, song=song_name)
+    dir = extract_song_dir(artist=config.ARTIST, song=config.SONG)
 
     return extract_all_lyrics(dir)
 
 
-def extract_song_dir(artist, song) -> list:
+def extract_song_dir(artist: str, song: str) -> list:
     ## -----*----- 曲のディレクトリ部を取得 -----*----- ##
     # 歌手名検索用のURL
-    url = 'https://www.uta-net.com/search/?Aselect=1&Bselect=4&sort=4&Keyword='+artist
+    url = config.ARTIST_SEARCHING_URL + artist
 
     html = download_html(url)
     soup = BeautifulSoup(html, 'html.parser')
@@ -24,9 +26,21 @@ def extract_song_dir(artist, song) -> list:
     song_selector = '#ichiran > div > table > tbody > tr > td.side.td1 > a'
     tags = soup.select(song_selector)
 
+    # 全曲解析
     if song == '*':
-        hrefs = [t.get('href') for t in tags]
-        return [h for h in hrefs if '/song/'in h]  # '/song/'を含むhrefのみ
+        directory = []
+
+        for tag in tags:
+            href = tag.get('href')
+
+            # '/song/'を含むhrefのみ
+            if '/song/' in href:
+                directory.append(href)
+
+            sleep(3)  # 優しさ
+            print('*', end='')
+
+        return directory
         # 例: ['/song/12950/',/song/12951/,...]
 
     for tag in tags:
@@ -48,33 +62,23 @@ def extract_all_lyrics(directories: list) -> str:
 
 def extract_lyrics(directory: str) -> str:
     ## -----*----- 歌詞文字列を取得 -----*----- ##
-    domain = 'https://www.uta-net.com'
-    url = domain + directory
+    url = config.DOMAIN + directory
 
     html = download_html(url)
 
     soup = BeautifulSoup(html, 'html.parser')
 
     selector = '#kashi_area'
-    content = soup.select_one(selector).text
 
-    return normalize_lyrics(content)
-
-
-def normalize_lyrics(cont: str) -> str:
-    ## -----*----- 歌詞文字列の正規化 -----*----- ##
-    cont = re.sub(r'注意：.+', '', cont)  # 注釈を除去
-    cont = re.sub(r'^亜-熙ぁ-んァ-ヶa-zA-Z ', '', cont)  # 日本語,アルファベット,空白のみ抽出
-
-    return cont
+    return soup.select_one(selector).text
 
 
 def download_html(url: str) -> bytes:
     ## -----*----- 指定URLのHTML文字列を取得 -----*----- ##
     try:
-        sleep(3)  # 優しさ
         res = requests.get(url)
         res.raise_for_status()
         return res.content
     except:
         print('this page is not found')
+        exit()

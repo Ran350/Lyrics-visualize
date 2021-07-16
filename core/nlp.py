@@ -1,15 +1,16 @@
 import MeCab
 import csv
+from core import config
 
 
-def get_words(lyrics: str, title: str, is_rm_title: bool) -> list:
+def get_words(lyrics: str) -> list:
     ## -----*----- 歌詞から単語を取得(メイン) -----*----- ##
     mecab = set_nlp()
 
     stop_words = get_stop_words()  # 除外単語を取得
 
-    if is_rm_title:
-        add_title_to_stopwords(title, stop_words, mecab)
+    if config.IS_REMOVE_TITLE:
+        add_title_to_stopwords(stop_words, mecab)
 
     # 形態素解析
     return separate_lyrics_into_words(lyrics, mecab, stop_words)
@@ -18,8 +19,7 @@ def get_words(lyrics: str, title: str, is_rm_title: bool) -> list:
 def set_nlp():
     ## -----*----- MeCab解析器の準備 -----*----- ##
     # 解析器の設定
-    dictionary = '-d /usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd'
-    # dictionary = '-Ochasen'  # なければこれを指定
+    dictionary = '-d ' + config.DICTIONARY_PATH
     mecab = MeCab.Tagger(dictionary)
 
     mecab.parse('')  # これでUnicodeDecodeErrorを避けられるらしい
@@ -29,14 +29,14 @@ def set_nlp():
 
 def get_stop_words() -> list:
     ## -----*----- 除外単語を取得 -----*----- ##
-    with open('./stop_words.csv') as f:
+    with open(config.STOP_WORDS_PATH) as f:
         for row in csv.reader(f):
             return row
 
 
-def add_title_to_stopwords(title: str, stop_words: list, mecab: MeCab.Tagger):
+def add_title_to_stopwords(stop_words: list, mecab: MeCab.Tagger):
     ## -----*----- 曲名を除外リストに追加 -----*----- ##
-    node = mecab.parseToNode(title)  # 曲名を分かち書きしてノードに
+    node = mecab.parseToNode(config.SONG)  # 曲名を分かち書きしてノードに
 
     while node:
         word = node.surface  # 単語

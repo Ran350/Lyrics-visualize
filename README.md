@@ -3,7 +3,7 @@
 
 # DEMO
 
-![demo_image](scr/image/丸の内サディスティック.png)
+![demo_image](image/丸の内サディスティック.png)
 
 > 曲名:丸の内サディスティック  作詞:椎名林檎
 
@@ -15,7 +15,7 @@
 
 ## Build
 
-```bash
+```sh
 git clone <this repo>
 cd <this repo>
 pip install -r requirements.txt
@@ -23,21 +23,32 @@ pip install -r requirements.txt
 
 ## Input
 
-実行ファイル main.py 中の， 変数 artist に歌手名を，変数 song に曲名を入力する．
-曲名を除外して出力したい場合には，is_remove_title には True を入力する．
+[core/config.py](core/config.py) で以下を設定する．
 
-```
-artist = '椎名林檎'
-song = '丸の内サディスティック'  # 全曲解析 -> '*'を入力
-is_remove_title = False  # 曲名を除外して出力 -> True
+歌手名と曲名を設定する．
+```py
+ARTIST: str = '椎名林檎'
+SONG: str = '丸の内サディスティック'  # 全曲解析: '*'
+IS_REMOVE_TITLE: bool = False
 ```
 
-> main.py
+形態素解析に用いる辞書のパスを指定する．
+辞書をインストールしていない場合は，コメントアウトを外して`-Ochasen`を指定する．
+
+```py
+DICTIONARY_PATH: str = '/usr/lib/x86_64-linux-gnu/mecab/dic/mecab-ipadic-neologd'
+# DICTIONARY_PATH: str = '-Ochasen'
+```
+
+ワードクラウド画像で用いるフォントのパスを指定する．
+
+```py
+FONT_PATH: str = '/usr/share/fonts/truetype/takao-mincho/TakaoMincho.ttf'
+```
 
 ## Run
 
-```bash
-cd src
+```sh
 python main.py
 ```
 
