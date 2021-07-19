@@ -3,7 +3,7 @@
 
 # DEMO
 
-![demo_image](image/丸の内サディスティック.png)
+![demo](https://github.com/Ran350/Lyrics-visualize/blob/master/image/%E4%B8%B8%E3%81%AE%E5%86%85%E3%82%B5%E3%83%87%E3%82%A3%E3%82%B9%E3%83%86%E3%82%A3%E3%83%83%E3%82%AF.png?raw=true)
 
 > 曲名:丸の内サディスティック  作詞:椎名林檎
 
